@@ -31,7 +31,7 @@ Hibernate, EclipseLink, DataNucleus가 있으며 Hibernate가 대표적으로 �
 
 개발자가 직접 SQL문을 작성하지 않아도 JPA가 자동으로 생성하여 JDBC에게 전달하고 원하는 결과를 확인할 수 있다.
 
-![](images/1.png)
+![](image/1.png)
 
 **JPA 저장**
 
@@ -39,7 +39,7 @@ Hibernate, EclipseLink, DataNucleus가 있으며 Hibernate가 대표적으로 �
 JPA의 영속성 컨텍스트로 Entity를 Persist하면 JPA는 해당 엔티티를 분석하여
 Insert 쿼리를 생성하고 생성된 쿼리를 JDBC로 전달하여 데이터를 DB에 Insert하게 된다.
 
-![](images/2.png)
+![](image/2.png)
 
 **JPA 조회**
 
@@ -47,7 +47,7 @@ Insert 쿼리를 생성하고 생성된 쿼리를 JDBC로 전달하여 데이터
 데이터를 식별할 수 있는 값(일반적으로 id)으로 JPA의 find 메서드를 호출하면
 JPA에 자동으로 Select 쿼리를 생성하여 원하는 데이터를 조회한다.
 
-![](images/3.png)
+![](image/3.png)
 
 ---
 
@@ -57,7 +57,7 @@ JPA에 자동으로 Select 쿼리를 생성하여 원하는 데이터를 조회�
 엔티티 매니저는 쓰레드간 고유해야하며 사용하고 버려야한다.
 JPA의 모든 데이터 변경은 트랜잭션 안에서 이루어져야 DB에 반영이 된다. 
 
-![](images/4.png)
+![](image/4.png)
 
 
 ---

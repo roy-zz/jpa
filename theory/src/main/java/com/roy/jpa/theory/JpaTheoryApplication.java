@@ -1,13 +1,13 @@
-package com.roy.jpa;
+package com.roy.jpa.theory;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class JpaApplication {
+public class JpaTheoryApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(JpaApplication.class, args);
+		SpringApplication.run(JpaTheoryApplication.class, args);
 	}
 
 }

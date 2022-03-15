@@ -25,23 +25,25 @@ public class TaxiEvent {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @Embedded
     @AttributeOverrides({
             @AttributeOverride(
                     name = "startDateTime",
-                    column = @Column(name = "event_start_datetime", columnDefinition = "COMMENT '고객 승차 일시'")),
+                    column = @Column(name = "event_start_datetime")),
             @AttributeOverride(
                     name = "endDateTime",
-                    column = @Column(name = "event_end_datetime", columnDefinition = "COMMENT '고객 하차 일시'"))
+                    column = @Column(name = "event_end_datetime"))
     })
     private Period eventPeriod;
 
+    @Embedded
     @AttributeOverrides({
             @AttributeOverride(
                     name = "startDateTime",
-                    column = @Column(name = "trip_start_datetime", columnDefinition = "COMMENT '고객 승차 일시'")),
+                    column = @Column(name = "trip_start_datetime")),
             @AttributeOverride(
                     name = "endDateTime",
-                    column = @Column(name = "trip_end_datetime", columnDefinition = "COMMENT '고객 하차 일시'"))
+                    column = @Column(name = "trip_end_datetime"))
     })
     private Period tripPeriod;
 

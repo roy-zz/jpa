@@ -17,16 +17,8 @@ public class JpaTheoryApplication {
 		transaction.begin();
 
 		try {
-			for (int i = 0; i < 100; i++) {
-				TaxiDriver taxiDriver = new TaxiDriver();
-				taxiDriver.setName(String.valueOf(i));
-				entityManager.persist(taxiDriver);
-			}
-
-			String query = "SELECT TD FROM TaxiDriver TD";
+			String query = "SELECT TD FROM TaxiDriver TD LEFT JOIN TD.taxiCompany TC ON TD.name = TC.name";
 			List<TaxiDriver> results = entityManager.createQuery(query, TaxiDriver.class)
-					.setFirstResult(50)
-					.setMaxResults(20)
 					.getResultList();
 
 			transaction.commit();

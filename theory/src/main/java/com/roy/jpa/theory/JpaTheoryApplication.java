@@ -1,7 +1,6 @@
 package com.roy.jpa.theory;
 
-import com.roy.jpa.theory.dto.TaxiEventDTO;
-import com.roy.jpa.theory.entity.TaxiEvent;
+import com.roy.jpa.theory.entity.TaxiDriver;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -18,20 +17,17 @@ public class JpaTheoryApplication {
 		transaction.begin();
 
 		try {
-			TaxiEvent taxiEvent1 = new TaxiEvent();
-			taxiEvent1.setCost(1000);
-			TaxiEvent taxiEvent2 = new TaxiEvent();
-			taxiEvent2.setCost(2000);
-			entityManager.persist(taxiEvent1);
-			entityManager.persist(taxiEvent2);
+			for (int i = 0; i < 100; i++) {
+				TaxiDriver taxiDriver = new TaxiDriver();
+				taxiDriver.setName(String.valueOf(i));
+				entityManager.persist(taxiDriver);
+			}
 
-			List<TaxiEventDTO> result = entityManager.createQuery(
-					"SELECT new com.roy.jpa.theory.dto.TaxiEventDTO(TE.id, TE.cost) " +
-							"FROM TaxiEvent TE WHERE TE.cost > 500", TaxiEventDTO.class)
+			String query = "SELECT TD FROM TaxiDriver TD";
+			List<TaxiDriver> results = entityManager.createQuery(query, TaxiDriver.class)
+					.setFirstResult(50)
+					.setMaxResults(20)
 					.getResultList();
-			result.forEach(i -> {
-				System.out.println("i.toString() = " + i.toString());
-			});
 
 			transaction.commit();
 		} catch (Exception e) {

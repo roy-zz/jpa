@@ -25,13 +25,4 @@ public class TaxiDriver {
     @OneToMany(mappedBy = "taxiDriver")
     private List<TaxiEvent> taxiEvents = new ArrayList<>();
 
-    @Override
-    public String toString() {
-        return "TaxiDriver{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", phone='" + phone + '\'' +
-                '}';
-    }
-
 }

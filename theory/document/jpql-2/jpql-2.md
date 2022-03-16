@@ -332,6 +332,8 @@ String query = "SELECT TD " +
 "FROM Customer C ";
 ```
 
+---
+
 ### Function
 
 JPQL에서는 DB에서 제공하는 일부의 함수를 제공하고 있다.
@@ -380,9 +382,98 @@ Hibernate:
 results = 1번 기사님의 이름,2번 기사님의 이름,3번 기사님의 이름
 ```
 
+---
 
+### 경로 표현식
 
+경로 표현식이란 '.' 을 사용하여 객체의 그래프를 탐색하는 방법이다.
+경로 표현식으로 탐색가능 한 값으로는 단순히 값(String, Integer 등)을 저장하는 상태 필드(State Field)와 
+연관 관계(Association Field)로 연결되어 있는 필드를 탐색하는 방법이 있다.
 
+예를 들어보기 전에 묵시적 조인과 명시적 조인에 대해서 알아본다.
+
+- 명시적 조인: 개발자가 직접 Join 키워드를 사용하는 경우
+- 묵시적 조인: 경로 표현식에 의해 묵시적으로 Join이 발생한 경우(Inner Join만 가능)
+
+묵시적 조인의 경우 항상 Inner Join만 가능하다.
+또한 컬렉션은 경로 탐색의 끝이므로 경로 표현식으로 더 이상의 탐색이 불가능하다. 명시적 조인을 통해 별칭을 얻고 이후의 탐색을 진행해야한다.
+묵시적 조인은 코드상에 Join이 표시되지 않기 때문에 직관적으로 Join 쿼리가 발생함을 예상하기 어렵다.
+
+**이러한 이유들 때문에 묵시적 조인이 아닌 명시적 조인을 사용하는 것이 유리하다.**
+
+TaxiDriver를 통해 경로 표현식의 예시를 알아본다.
+
+- 상태 필드(State Field)를 탐색, 탐색의 끝 지점이므로 더 이상의 탐색이 불가능하다.
+
+```java
+"SELECT " +
+" TD.name " + // 이름 이후의 탐색은 불가능하다.
+"FROM TaxiDriver TD ";
+```
+
+- 단일 값 연관 관계를 탐색, 묵시적 조인이 발생하며 추가로 탐색이 가능하다.
+
+```java
+String query = "SELECT " +
+        "TD.taxiCompany.name " + // 연관 경로를 탐색하고 이후 이름까지 탐색 가능하다.
+        "FROM TaxiDriver TD ";
+        List<String> results = entityManager.createQuery(query, String.class)
+            .getResultList();
+```
+
+발생한 쿼리를 확인해보면 Inner Join이 있는 것을 확인할 수 있다.
+
+```sql
+Hibernate: 
+    /* SELECT
+        TD.taxiCompany.name 
+    FROM
+        TaxiDriver TD  */ select
+            taxicompan1_.name as col_0_0_ 
+        from
+            TaxiDriver taxidriver0_ cross 
+        join
+            TaxiCompany taxicompan1_ 
+        where
+            taxidriver0_.taxi_company_id=taxicompan1_.id
+```
+
+- 컬렉션 값 연관 관계를 탐색, 묵시적 조인이 발생하며 컬렉션은 경로 탐색의 끝 지점이기 떄문에 더 이상의 탐색이 불가능하다.
+
+```java
+String query = "SELECT " +
+               "TD.taxiEvents " + // TaxiEvents는 컬렉션이므로 더이상의 탐색이 불가능하다.
+               "FROM TaxiDriver TD ";
+```
+
+만약 컬렉션 타입의 이름만 추출하고 싶다면 명시적으로 Join을 하고 지정한 Alias를 통해 탐색을 해야한다.
+
+```java
+String query = "SELECT " +
+               "TE.cost " +
+               "FROM TaxiDriver TD " +
+               " 	 JOIN TD.taxiEvents TE ";
+entityManager.createQuery(query, Integer.class)
+        .getResultList();
+```
+
+발생한 쿼리의 형태는 아래와 같다.
+
+```sql
+Hibernate: 
+    /* SELECT
+        TE.cost 
+    FROM
+        TaxiDriver TD    
+    JOIN
+        TD.taxiEvents TE  */ select
+            taxievents1_.cost as col_0_0_ 
+        from
+            TaxiDriver taxidriver0_ 
+        inner join
+            TaxiEvent taxievents1_ 
+                on taxidriver0_.id=taxievents1_.taxi_driver_id
+```
 
 ---
 

@@ -6,7 +6,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import java.util.List;
 
 public class JpaTheoryApplication {
 
@@ -16,13 +15,25 @@ public class JpaTheoryApplication {
 		EntityTransaction transaction = entityManager.getTransaction();
 		transaction.begin();
 
+		TaxiDriver taxiDriver1 = new TaxiDriver();
+		taxiDriver1.setName("1번 기사님의 이름");
+		TaxiDriver taxiDriver2 = new TaxiDriver();
+		taxiDriver2.setName("2번 기사님의 이름");
+		TaxiDriver taxiDriver3 = new TaxiDriver();
+		taxiDriver3.setName("3번 기사님의 이름");
+		entityManager.persist(taxiDriver1);
+		entityManager.persist(taxiDriver2);
+		entityManager.persist(taxiDriver3);
+
 		try {
 			String query = "SELECT " +
-						   "NULLIF(C.name, '로이') " +
-					       "FROM Customer C ";
+						   "FUNCTION('GROUP_CONCAT', TD.name) " +
+					       "FROM TaxiDriver TD ";
 
-			List<TaxiDriver> results = entityManager.createQuery(query, TaxiDriver.class)
-					.getResultList();
+			String results = entityManager.createQuery(query, String.class)
+					.getSingleResult();
+
+			System.out.println("results = " + results);
 
 			transaction.commit();
 		} catch (Exception e) {

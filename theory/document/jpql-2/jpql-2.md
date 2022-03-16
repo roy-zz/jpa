@@ -332,6 +332,57 @@ String query = "SELECT TD " +
 "FROM Customer C ";
 ```
 
+### Function
+
+JPQL에서는 DB에서 제공하는 일부의 함수를 제공하고 있다.
+일부의 함수들은 지원하지 않으므로 추가해서 사용해야한다. 추가된 함수는 사용하는 DB에 종속적이므로 주의가 필요하다.
+
+자신이 사용하는 Dialect를 상속하는 커스텀 Dialect 클래스를 만들고 원하는 함수를 아래와 같이 추가한다.
+
+```java
+public class CustomH2Dialect extends H2Dialect {
+    public CustomH2Dialect() {
+        registerFunction("group_concat",
+                new StandardSQLFunction(("group_concat"), StandardBasicTypes.STRING));
+    }
+}
+```
+META-INF/persistence.xml 파일의 Dialect 부분을 추가한 Dialect 클래스로 수정한다.
+
+```xml
+<property name="hibernate.dialect" value="com.roy.jpa.theory.CustomH2Dialect"/>
+```
+
+기본으로 제공되는 함수들과 동일하게 사용한다.
+아래는 조회된 기사들의 이름을 하나로 합치는 코드와 생성된 쿼리 및 결과이다.
+
+```java
+String query = "SELECT " +
+               "FUNCTION('GROUP_CONCAT', TD.name) " +
+               "FROM TaxiDriver TD ";
+String results = entityManager.createQuery(query, String.class)
+        .getSingleResult();
+System.out.println("results = " + results);
+```
+
+생성된 쿼리와 쿼리 결과
+
+```sql
+Hibernate: 
+    /* SELECT
+        FUNCTION('GROUP_CONCAT',
+        TD.name) 
+    FROM
+        TaxiDriver TD  */ select
+            group_concat(taxidriver0_.name) as col_0_0_ 
+        from
+            TaxiDriver taxidriver0_
+results = 1번 기사님의 이름,2번 기사님의 이름,3번 기사님의 이름
+```
+
+
+
+
 
 ---
 

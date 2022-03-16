@@ -237,6 +237,100 @@ Hibernate:
 
 ---
 
+### Sub Query
+
+서브 쿼리의 경우 일반적으로 우리가 사용하던 쿼리의 형태와 동일하다.
+단, FROM 절에서는 서브 쿼리를 사용할 수 없으므로 Join을 사용하여 문제를 해결해야한다.
+
+서브 쿼리를 사용하는 예시는 아래와 같다.
+
+- 한 번이라도 고객을 태운적이 있는 기사 찾기
+
+```java
+String query = "SELECT TD " +
+               "FROM TaxiDriver TD " +
+               "WHERE (SELECT COUNT(TE) FROM TaxiEvent TE WHERE TD = TE.taxiDriver) > 0 ";
+```
+
+- 한 번이라도 택시를 이용한 고객 찾기
+
+```java
+String query = "SELECT C " +
+               "FROM Customer C " +
+               "WHERE (SELECT COUNT(TE) FROM TaxiEvent TE WHERE C = TE.customer) > 0 ";
+```
+
+아래와 같은 명령어를 통한 서브 쿼리도 가능하다.
+
+- EXIST: 서브 쿼리의 결과가 존재하면 참, NOT EXIST와 같이 반대의 의미로도 사용이 가능하다.
+
+예) 한 번이라도 택시를 이용한 고객 찾기
+
+```java
+String query = "SELECT C " +
+               "FROM Customer C " +
+               "WHERE EXISTS (SELECT COUNT(TE) FROM TaxiEvent TE WHERE C = TE.customer) ";
+```
+
+- ALL: 서브 쿼리의 내용을 모드 만족하면 참
+
+- ANY, SOME, IN: 조건 중 하나라도 만족하면 참, IN은 앞에 NOT IN과 같이 반대의 의미로도 사용이 가능하다.
+
+예) 업체에 속해있는 기사 찾기
+
+```java
+String query = "SELECT TD " +
+               "FROM TaxiDriver TD " +
+               "WHERE TD.taxiCompany = ANY (SELECT TC FROM TaxiCompany TC) ";
+```
+
+---
+
+### 표현
+
+대부분의 표현은 직접 DB의 쿼리를 작성하는 방식과 유사하다.
+다만 Enum타입의 경우 직접 Enum의 패키지명까지 명시해주어야한다는 점이 다르다.
+
+**기본 Case**
+```java
+"SELECT " +
+"	CASE " +
+"		WHEN TE.cost >= 100000 THEN '우량고객' " +
+" 		ELSE '일반고객' " +
+"	END " +
+"FROM TaxiEvent TE ";
+```
+
+**단순 Case**
+```java
+"SELECT " +
+"	CASE " +
+"		WHEN TC.name = 'A운송' THEN '우량업체' " +
+" 		WHEN TC.name = 'B통운' THEN '탈퇴한 업체' " +
+"		ELSE '일반 업체' " +
+"	END " +
+"FROM TaxiCompany TC ";
+```
+
+**COALESCE**
+조회 결과가 null이 아니면 치환한다.
+아래의 쿼리는 휴대폰 번호가 없는 고객들의 휴대폰 번호를 null 대신 '번호없음'으로 변환하는 방법이다.
+
+```java
+"SELECT " +
+"COALESCE(C.phone, '번호없음') " +
+"FROM Customer C ";
+```
+
+**NULLIF**
+두 값이 같으면 null을 반환하고 다르면 첫번째 값을 반환한다.
+아래의 쿼리는 사용자의 이름이 '로이'면 null로 치환하고 그 외의 경우 사용자의 이름을 반환하는 방법이다.
+
+```java
+"SELECT " +
+"NULLIF(C.name, '로이') " +
+"FROM Customer C ";
+```
 
 
 ---

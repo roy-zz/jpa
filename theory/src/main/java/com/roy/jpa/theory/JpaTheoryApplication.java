@@ -17,7 +17,10 @@ public class JpaTheoryApplication {
 		transaction.begin();
 
 		try {
-			String query = "SELECT TD FROM TaxiDriver TD LEFT JOIN TD.taxiCompany TC ON TD.name = TC.name";
+			String query = "SELECT " +
+						   "NULLIF(C.name, '로이') " +
+					       "FROM Customer C ";
+
 			List<TaxiDriver> results = entityManager.createQuery(query, TaxiDriver.class)
 					.getResultList();
 

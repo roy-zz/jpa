@@ -10,6 +10,10 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@NamedQuery(
+        name = "TaxiDriver.findByName",
+        query = "SELECT TD FROM TaxiDriver TD WHERE TD.name = :name"
+)
 public class TaxiDriver {
 
     @Id

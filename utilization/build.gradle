@@ -33,6 +33,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+
+// Junit5는 하단부의 내용이 추가되어야 테스트가 인식된다.
 tasks.named('test') {
     useJUnitPlatform()
 }

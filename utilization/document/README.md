@@ -75,3 +75,31 @@ Setter를 호출하면 데이터가 변한다. Setter를 열어두면 가까운 
 엔티티의 식별자는 id를 사용하고 PK 컬럼명은 member_id를 사용했다. 엔티티는 타입(여기서는 Member)이 있으므로
 id 필드만으로 쉽게 구분할 수 있다. 테이블은 타입이 없으므로 구분이 어렵다. 그리고 테이블은 관례상 테이블명 + id를
 많이 사용한다. 참고로 객체에서 id 대신에 memberId를 사용해도 되며 중요한 것은 일관성이다.
+
+**실무에서는 @ManyToMany를 사용하면 안된다.**
+@ManyToMany는 편리한 것 같지만, 중간 테이블(CATEGORY_ITEM)에 컬럼을 추가할 수 없고, 세밀하게 쿼리를 실행하기 어렵다.
+때문에 실무에서 사용하기에는 한계가 있다. 중간 엔티티(CategoryItem)를 만들고 @ManyToOne, @OneToMany로 매핑해서 사용해야한다.
+정리하면 다대다 매핑을 일대다, 다대일 매핑으로 풀어내서 사용해야한다.
+
+**값 타입은 변경 불가능하게 설계해야 한다.**
+@Setter를 제거하고 생성자에서 값을 모두 초기화해서 변경 불가능한 클래스를 만들어야한다.
+JPA 스펙상 엔티티나 임베디드 타입(@Embeddable)은 자바 기본 생성자(default constructor)를 public 또는
+protected로 설정해야 한다. public이 아닌 protected로 설정하여 객체를 캡슐화 해야한다.
+JPA가 이러한 제약을 두는 이유는 JPA 구현 라이브러리가 객체를 생성할 때 리플렉션과 같은 기술을 사용할 수 있도록
+지원해야 하기 때문이다.
+
+**컬렉션은 필드에서 바로 초기화 해야한다.**
+컬렉션은 필드에서 바로 초기화 해야 null safe하다.
+우리가 컬렉션을 지정하더라도 하이버네이트는 내장 컬렉션으로 변경하여 사용한다.
+만약 임의로 컬렉션을 잘못 생성하면 하이버네이트 내부 메커니즘에서 문제가 발생할 수 있다.
+따라서 필드레벨에서 생성하는 것이 가장 안전하고 코드도 간결해진다.
+
+**테이블, 컬럼명 생성 전략**
+스프링 부트에서 하이버네이트 기본 매핑 전략을 번경해서 실제 테이블 필드명은 다르다.
+- https://docs.spring.io/spring-boot/docs/2.1.3.RELEASE/reference/htmlsingle/#howto-configure-hibernate-naming-strategy 
+- http://docs.jboss.org/hibernate/orm/5.4/userguide/html_single/ Hibernate_User_Guide.html#naming
+
+하이버네이트 기존 구현: 엔티티의 필드명을 그대로 테이블의 컬럼명으로 사용한다.
+
+1. 논리명 생성: 명시적으로 컬럼, 테이블명을 직접 적지 않으면 ImplicitNamingStrategy를 사용한다.
+2. 물리명 적용: 모든 논리명에 적용된다. 실제 테이블에 적용된다.

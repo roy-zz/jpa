@@ -1,8 +1,8 @@
 package com.roy.jpa.utilization.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import javax.persistence.Embeddable;
 
@@ -11,8 +11,8 @@ import static lombok.AccessLevel.PUBLIC;
 
 @Getter
 @Embeddable
+@AllArgsConstructor(access = PUBLIC)
 @NoArgsConstructor(access = PROTECTED)
-@RequiredArgsConstructor(access = PUBLIC)
 public class Address {
 
     private String city;

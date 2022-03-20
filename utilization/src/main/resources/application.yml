@@ -6,7 +6,7 @@ spring:
     driver-class-name: org.h2.Driver
 
   jpa:
-    hibernamte:
+    hibernate:
       ddl-auto: create
     properties:
       format_sql: true

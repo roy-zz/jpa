@@ -11,5 +11,5 @@ spring:
     properties:
       format_sql: true
 
-  logging.level:
-    org.hibernate.SQL: debug
+logging.level:
+  org.hibernate.SQL: debug

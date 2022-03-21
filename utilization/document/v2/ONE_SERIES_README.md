@@ -92,8 +92,58 @@ Hibernate5Module hibernate5Module() {
 
 ### Step 2: Response에 DTO를 사용하는 경우 (1 + N)
 
+**OrderAPIController**
+```java
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(value = "/api/order")
+public class OrderAPIController {
 
+    private final OrderRepository orderRepository;
+    
+    @GetMapping(value = "", headers = "X-API-VERSION=2")
+    public List<Order.OrderResponseDTO> getOrderV2() {
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream()
+                .map(Order.OrderResponseDTO::of)
+                .collect(Collectors.toList());
+    }
 
+}
+```
+
+**Order Entity**
+```java
+// Annotation 생략
+public class Order {
+    // 중략 ---
+    @Data
+    @Builder
+    public static class OrderResponseDTO {
+        private Long orderId;
+        private String name;
+        private LocalDateTime orderDate;
+        private OrderStatus orderStatus;
+        private Address address;
+        public static OrderResponseDTO of(Order order) {
+            return OrderResponseDTO.builder()
+                    .orderId(order.getId())
+                    .name(order.getMember().getName())
+                    .orderDate(order.getOrderDate())
+                    .orderStatus(order.getStatus())
+                    .address(order.getMember().getAddress())
+                    .build();
+        }
+    }
+}
+```
+
+요청에 대한 응답으로 사용할 OrderResponseDTO를 생성하였다.
+이렇게 되면 Order Entity와 화면을 위한 프레젠테이션 계층이 분리가 되었다.
+
+하지만 우리에게는 아직 N + 1이라는 문제가 남아있다.
+
+![](image/occured-nadd1.png)
 
 ---
 

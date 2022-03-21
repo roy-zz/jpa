@@ -26,6 +26,10 @@ public class OrderRepository {
         return entityManager.find(Order.class, id);
     }
 
+    public List<Order> findAll() {
+        return entityManager.createQuery("select o from Order o", Order.class)
+                .getResultList();
+    }
     public List<Order> findAllByString(OrderSearch orderSearch) {
         String jpql = "SELECT O FROM Order O JOIN O.member M";
         boolean isFirstCondition = true;

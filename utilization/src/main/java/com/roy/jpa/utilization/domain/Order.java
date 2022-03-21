@@ -1,9 +1,7 @@
 package com.roy.jpa.utilization.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -90,6 +88,25 @@ public class Order {
         return this.orderItems.stream()
                 .mapToInt(OrderItem::getTotalPrice)
                 .sum();
+    }
+
+    @Data
+    @Builder
+    public static class OrderResponseDTO {
+        private Long orderId;
+        private String name;
+        private LocalDateTime orderDate;
+        private OrderStatus orderStatus;
+        private Address address;
+        public static OrderResponseDTO of(Order order) {
+            return OrderResponseDTO.builder()
+                    .orderId(order.getId())
+                    .name(order.getMember().getName())
+                    .orderDate(order.getOrderDate())
+                    .orderStatus(order.getStatus())
+                    .address(order.getMember().getAddress())
+                    .build();
+        }
     }
 
 }

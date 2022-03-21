@@ -1,5 +1,6 @@
 package com.roy.jpa.utilization.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class Member {
     private String name;
     @Embedded
     private Address address;
+    @JsonIgnore
     @OneToMany(mappedBy = "member")
     private List<Order> orders = new ArrayList<>();
 

@@ -30,7 +30,7 @@ public class InitDB {
 
         public void dbInit1() {
             System.out.println("Init1" + this.getClass());
-            Member member = createMember("userA", "서울", "1", "1111");
+            Member member = createMember("roy", "서울", "1", "1111");
             em.persist(member);
 
             Book book1 = createBook("JPA1 BOOK", 10000, 100);
@@ -48,7 +48,7 @@ public class InitDB {
         }
 
         public void dbInit2() {
-            Member member = createMember("userB", "진주", "2", "2222");
+            Member member = createMember("perry", "전주", "2", "2222");
             em.persist(member);
 
             Book book1 = createBook("SPRING1 BOOK", 20000, 200);

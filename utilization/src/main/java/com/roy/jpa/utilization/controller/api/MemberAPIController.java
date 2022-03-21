@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,6 +52,11 @@ public class MemberAPIController {
         memberService.patchMember(memberId, request.getName(), request.getAddress());
         Member storedMember = memberService.findOne(memberId);
         return Member.UpdateResponseDTO.of(storedMember);
+    }
+
+    @GetMapping(value = "", headers = "X-API-VERSION=1")
+    public List<Member> getMemberV1() {
+        return memberService.findMembers();
     }
 
 }

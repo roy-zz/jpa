@@ -1,4 +1,4 @@
-package com.roy.jpa.utilization.controller;
+package com.roy.jpa.utilization.controller.web;
 
 import lombok.Getter;
 import lombok.Setter;

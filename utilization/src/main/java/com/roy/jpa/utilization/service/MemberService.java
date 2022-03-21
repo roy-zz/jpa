@@ -1,5 +1,6 @@
 package com.roy.jpa.utilization.service;
 
+import com.roy.jpa.utilization.domain.Address;
 import com.roy.jpa.utilization.domain.Member;
 import com.roy.jpa.utilization.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,6 +36,20 @@ public class MemberService {
 
     public Member findOne(Long memberId) {
         return memberRepository.findOne(memberId);
+    }
+
+    @Transactional
+    public void putMember(Long memberId, String name, Address address) {
+        Member member = findOne(memberId);
+        member.setName(name);
+        member.setAddress(address);
+    }
+
+    @Transactional
+    public void patchMember(Long memberId, String name, Address address) {
+        Member member = findOne(memberId);
+        member.setName(Objects.nonNull(name) ? name : member.getName());
+        member.setAddress(Objects.nonNull(address) ? address : member.getAddress());
     }
 
 }

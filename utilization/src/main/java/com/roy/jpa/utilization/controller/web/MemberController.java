@@ -1,4 +1,4 @@
-package com.roy.jpa.utilization.controller;
+package com.roy.jpa.utilization.controller.web;
 
 import com.roy.jpa.utilization.domain.Address;
 import com.roy.jpa.utilization.domain.Member;

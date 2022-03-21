@@ -1,4 +1,4 @@
-package com.roy.jpa.utilization.controller;
+package com.roy.jpa.utilization.controller.web;
 
 import com.roy.jpa.utilization.domain.item.Book;
 import com.roy.jpa.utilization.domain.item.Item;

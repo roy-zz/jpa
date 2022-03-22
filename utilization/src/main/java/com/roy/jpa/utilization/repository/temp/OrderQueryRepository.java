@@ -1,4 +1,4 @@
-package com.roy.jpa.utilization.repository.queryrepository;
+package com.roy.jpa.utilization.repository.temp;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

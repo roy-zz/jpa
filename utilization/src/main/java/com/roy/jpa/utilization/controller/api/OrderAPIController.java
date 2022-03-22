@@ -2,8 +2,8 @@ package com.roy.jpa.utilization.controller.api;
 
 import com.roy.jpa.utilization.domain.Order;
 import com.roy.jpa.utilization.repository.OrderRepository;
-import com.roy.jpa.utilization.repository.queryrepository.OrderQueryDTO;
-import com.roy.jpa.utilization.repository.queryrepository.OrderQueryRepository;
+import com.roy.jpa.utilization.repository.temp.OrderQueryDTO;
+import com.roy.jpa.utilization.repository.temp.OrderQueryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

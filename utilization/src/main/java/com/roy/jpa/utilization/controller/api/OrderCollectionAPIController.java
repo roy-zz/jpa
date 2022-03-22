@@ -5,6 +5,8 @@ import com.roy.jpa.utilization.domain.Order;
 import com.roy.jpa.utilization.domain.OrderItem;
 import com.roy.jpa.utilization.domain.OrderStatus;
 import com.roy.jpa.utilization.repository.OrderRepository;
+import com.roy.jpa.utilization.repository.queryrepository.OrdersQueryDTO;
+import com.roy.jpa.utilization.repository.queryrepository.OrdersQueryRepository;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class OrderCollectionAPIController {
 
     private final OrderRepository orderRepository;
+    private final OrdersQueryRepository ordersQueryRepository;
 
     @GetMapping(value = "", headers = "X-API-VERSION=1")
     public List<Order> getOrdersV1() {
@@ -62,6 +65,16 @@ public class OrderCollectionAPIController {
         return orders.stream()
                 .map(OrderDTO::of)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping(value = "", headers = "X-API-VERSION=5")
+    public List<OrdersQueryDTO> getOrdersV5() {
+        return ordersQueryRepository.findOrderQueryDTOs();
+    }
+
+    @GetMapping(value = "", headers = "X-API-VERSION=6")
+    public List<OrdersQueryDTO> getOrdersV6() {
+        return ordersQueryRepository.findOrderQueryDTOsV6();
     }
 
     @Data

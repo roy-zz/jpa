@@ -1,4 +1,4 @@
-package com.roy.jpa.utilization.repository.queryrepository;
+package com.roy.jpa.utilization.repository.temp;
 
 import com.roy.jpa.utilization.domain.Address;
 import com.roy.jpa.utilization.domain.OrderStatus;

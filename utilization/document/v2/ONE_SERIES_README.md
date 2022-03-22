@@ -249,7 +249,7 @@ public class OrderQueryRepository {
 
     public List<OrderQueryDTO> findOrderQueryDTOs() {
         return entityManager.createQuery(
-                "SELECT new com.roy.jpa.utilization.repository.queryrepository.OrderQueryDTO" +
+                "SELECT new com.roy.jpa.utilization.repository.temp.OrderQueryDTO" +
                         "(O.id, M.name, O.orderDate, O.status, D.address) " +
                         "FROM " +
                         "   Order O " +

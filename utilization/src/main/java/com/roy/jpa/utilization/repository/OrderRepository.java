@@ -101,4 +101,26 @@ public class OrderRepository {
         ).getResultList();
     }
 
+    public List<Order> fetchAllByFetchJoin() {
+        return entityManager.createQuery(
+                "SELECT DISTINCT O " +
+                        "FROM Order O " +
+                        "       JOIN FETCH O.member M " +
+                        "       JOIN FETCH O.delivery D " +
+                        "       JOIN FETCH O.orderItems OI " +
+                        "       JOIN FETCH OI.item I ", Order.class
+        ).getResultList();
+    }
+
+    public List<Order> findAllByFetchJoinWithPagination(int offset, int limit) {
+        return entityManager.createQuery(
+                "SELECT O " +
+                        "FROM Order O " +
+                        "       JOIN FETCH O.member M " +
+                        "       JOIN FETCH O.delivery D ", Order.class)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
 }

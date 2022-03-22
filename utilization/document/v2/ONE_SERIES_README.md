@@ -65,7 +65,7 @@ public class Member {
 하지만 이렇게 수정하더라도 Jackson 라이브러리에서 member 프록시 객체를 생성하지 못하여 오류가 발생한다.
 ByteBuddy는 Jackson에서 사용하는 프록시 라이브러리이다.
 
-![](image/byte-buddy.png)
+![](oneseriesimage/byte-buddy.png)
 
 문제를 해결하기 위해 build.gradle에 아래의 라이브러리를 추가한다.
 
@@ -82,7 +82,7 @@ Hibernate5Module hibernate5Module() {
 
 이제 정상적으로 결과 값을 응답한다.
 
-![](image/success-v1.png)
+![](oneseriesimage/success-v1.png)
 
 하지만 이러한 방식은 [Member를 입력하고 수정할 때(링크)](https://imprint.tistory.com/127?category=1061011)와 동일하게 Entity가 노출되어 있다.
 발생하는 문제점 또한 동일하며 이번에는 N + 1 문제까지 발생하고 있다.
@@ -143,7 +143,7 @@ public class Order {
 
 하지만 우리에게는 아직 N + 1이라는 문제가 남아있다.
 
-![](image/occured-nadd1.png)
+![](oneseriesimage/occured-nadd1.png)
 
 ---
 
@@ -290,4 +290,4 @@ Query 리포지토리의 각 쿼리들은 하나의 화면에서만 사용될 �
 
 - JPA 공식 문서: https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#reference
 
-위키백과: https://ko.wikipedia.org/wiki/%EC%9E%90%EB%B0%94_%ED%8D%BC%EC%8B%9C%EC%8A%A4%ED%84%B4%EC%8A%A4_API
+- 위키백과: https://ko.wikipedia.org/wiki/%EC%9E%90%EB%B0%94_%ED%8D%BC%EC%8B%9C%EC%8A%A4%ED%84%B4%EC%8A%A4_API

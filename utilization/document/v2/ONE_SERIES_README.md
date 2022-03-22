@@ -149,17 +149,136 @@ public class Order {
 
 ### Step 3: Response에 DTO를 사용하는 경우 (Fetch Join)
 
+이번에는 JPA의 Fetch Join을 사용하여 한 번의 쿼리로 원하는 결과를 얻어본다.
 
+**OrderAPIController**
 
+```java
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(value = "/api/order")
+public class OrderAPIController {
+
+    private final OrderRepository orderRepository;
+
+    @GetMapping(value = "", headers = "X-API-VERSION=3")
+    public List<Order.OrderResponseDTO> getOrderV3() {
+        List<Order> orders = orderRepository.findAllByFetchJoin();
+        return orders.stream()
+                .map(Order.OrderResponseDTO::of)
+                .collect(Collectors.toList());
+    }
+}
+```
+
+**OrderRepository**
+
+```java
+@Repository
+@RequiredArgsConstructor
+public class OrderRepository {
+
+    private final EntityManager entityManager;
+
+    public List<Order> findAllByFetchJoin() {
+        return entityManager.createQuery(
+                "SELECT " +
+                        "   O " +
+                        "FROM " +
+                        "   Order O " +
+                        "       JOIN FETCH O.member M " +
+                        "       JOIN FETCH O.delivery D ", Order.class
+        ).getResultList();
+    }
+}
+```
 
 ---
 
 ### Step 4: JPQL에서 DTO로 조회하는 경우
 
+일반으로 SQL을 작성하는 것 처럼 원하는 필드만 가져와서 DTO의 생성자에 대입시킨다.
+이렇게 Entity가 아닌 DTO를 조회하는 리포지토리와 DTO는 기존의 repository 클래스에 작성하는 것이 아니라 
+새로운 디렉토리(queryrepository)를 만들고 생성된 디렉토리에 새로운 리포지토리(OrderQueryRepository)와 DTO 클래스(OrderQueryDTO)를 생성하였다.
 
 
 
+이러한 규칙으로 작성하게 되면 Entity를 조회하는 리포지토리와 화면 의존적인 쿼리가 발생하는 Query 리포지토리를 구분할 수 있다.
 
+**OrderAPIController**
+
+```java
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(value = "/api/order")
+public class OrderAPIController {
+
+    private final OrderRepository orderRepository;
+    private final OrderQueryRepository orderQueryRepository;
+
+    @GetMapping(value = "", headers = "X-API-VERSION=4")
+    public List<OrderQueryDTO> getOrderV4() {
+        return orderQueryRepository.findOrderQueryDTOs();
+    }
+
+}
+```
+
+**OrderQueryDTO**
+
+```java
+@Data
+@AllArgsConstructor
+public class OrderQueryDTO {
+    private Long orderId;
+    private String name;
+    private LocalDateTime orderDate;
+    private OrderStatus orderStatus;
+    private Address address;
+}
+```
+
+**OrderQueryRepository**
+
+```java
+@Repository
+@RequiredArgsConstructor
+public class OrderQueryRepository {
+
+    private final EntityManager entityManager;
+
+    public List<OrderQueryDTO> findOrderQueryDTOs() {
+        return entityManager.createQuery(
+                "SELECT new com.roy.jpa.utilization.repository.queryrepository.OrderQueryDTO" +
+                        "(O.id, M.name, O.orderDate, O.status, D.address) " +
+                        "FROM " +
+                        "   Order O " +
+                        "       JOIN O.member M " +
+                        "       JOIN O.delivery D ", OrderQueryDTO.class)
+                .getResultList();
+    }
+
+}
+```
+
+SELECT에서 필요한 필드만 조회하므로 네트워크 비용을 줄일 수 있다.
+개인적인 생각으로 Entity -> DTO를 생성하게 되면 Entity 생성 시 한 번, DTO 생성 시 한 번
+메모리를 두 번 사용하게 되는데 비해 DTO로 바로 조회하면 Entity 생성 시 사용되는 메모리 사용량을 줄일 수 있을 것으로 예상된다.
+
+하지만 화면 의존적인 DTO 클래스가 리포지토리에 들어간다는 단점이 존재한다.
+
+---
+
+### Summary
+
+DTO로 조회하게 되면 DTO 클래스 생성, Query 리포지토리 생성 등 부가적인 작업이 필요하다.
+Query 리포지토리의 각 쿼리들은 하나의 화면에서만 사용될 가능성이 높아 재사용성이 낮다.
+하지만 Entity를 조회하는 경우 같은 조건으로 조회하는 API에서는 재사용이 가능하다.
+
+1. Entity를 DTO로 변환하는 방법으로 구현한다.
+2. N + 1 문제가 발생하면 Fetch Join을 사용하여 문제를 해결한다.
+3. Entity로 조회하는 경우 너무 많은 메모리 또는 네트워크 비용이 발생한다면 DTO로 직접 조회하는 방법을 사용한다.
+4. 이러한 방법으로도 성능 개선이 되지 않는 경우에는 Native Query를 사용하여 문제를 해결한다.
 
 ---
 

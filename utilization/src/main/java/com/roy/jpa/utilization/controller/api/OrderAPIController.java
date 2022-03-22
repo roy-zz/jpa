@@ -2,6 +2,8 @@ package com.roy.jpa.utilization.controller.api;
 
 import com.roy.jpa.utilization.domain.Order;
 import com.roy.jpa.utilization.repository.OrderRepository;
+import com.roy.jpa.utilization.repository.queryrepository.OrderQueryDTO;
+import com.roy.jpa.utilization.repository.queryrepository.OrderQueryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 public class OrderAPIController {
 
     private final OrderRepository orderRepository;
+    private final OrderQueryRepository orderQueryRepository;
 
     @GetMapping(value = "", headers = "X-API-VERSION=1")
     public List<Order> getOrderV1() {
@@ -33,6 +36,19 @@ public class OrderAPIController {
         return orders.stream()
                 .map(Order.OrderResponseDTO::of)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping(value = "", headers = "X-API-VERSION=3")
+    public List<Order.OrderResponseDTO> getOrderV3() {
+        List<Order> orders = orderRepository.findAllByFetchJoin();
+        return orders.stream()
+                .map(Order.OrderResponseDTO::of)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping(value = "", headers = "X-API-VERSION=4")
+    public List<OrderQueryDTO> getOrderV4() {
+        return orderQueryRepository.findOrderQueryDTOs();
     }
 
 }

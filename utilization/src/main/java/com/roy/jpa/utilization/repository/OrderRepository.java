@@ -90,4 +90,15 @@ public class OrderRepository {
         return query.getResultList();
     }
 
+    public List<Order> findAllByFetchJoin() {
+        return entityManager.createQuery(
+                "SELECT " +
+                        "   O " +
+                        "FROM " +
+                        "   Order O " +
+                        "       JOIN FETCH O.member M " +
+                        "       JOIN FETCH O.delivery D ", Order.class
+        ).getResultList();
+    }
+
 }

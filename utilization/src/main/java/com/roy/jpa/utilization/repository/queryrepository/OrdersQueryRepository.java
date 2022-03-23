@@ -31,6 +31,18 @@ public class OrdersQueryRepository {
         return result;
     }
 
+    public List<OrderFlatQueryDTO> findOrderQueryDTOsV7() {
+        return entityManager.createQuery(
+                "SELECT new com.roy.jpa.utilization.repository.queryrepository.OrderFlatQueryDTO" +
+                        "(O.id, M.name, O.orderDate, D.address, O.status, I.name, OI.orderPrice, OI.count) " +
+                        "FROM Order O " +
+                        "       JOIN O.member M " +
+                        "       JOIN O.delivery D " +
+                        "       JOIN O.orderItems OI " +
+                        "       JOIN OI.item I ", OrderFlatQueryDTO.class)
+                .getResultList();
+    }
+
     private Map<Long, List<OrderItemQueryDTO>> findOrderItemMap(Set<Long> orderIds) {
         List<OrderItemQueryDTO> result = entityManager.createQuery(
                 "SELECT new com.roy.jpa.utilization.repository.queryrepository.OrderItemQueryDTO " +

@@ -221,10 +221,149 @@ where
 
 ### Step 7: DTO를 직접 조회하여 Flatting하는 방법 (단 한 번의 쿼리, 페이징 불가)
 
+이번에는 DTO를 생성하고 일반 조인을 사용하여 xToMany 연관관계 Entity까지 한 번에 조회한다.
+조회한 데이터는 당연히 우리가 원하는 것과 다르게 xToMany 연관관계에 의해 늘어나 있는 상황이다.
+이러한 상황에서 조회된 데이터를 가공하여 원하는 결과물을 만들어본다.
+당연히 xToMany 연관관계인 Entity를 한 번에 조회하였기 때문에 페이징은 불가능하다.
 
+한 번에 조회한 데이터를 담을 DTO를 생성한다.
 
+**OrderFlatQueryDTO**
+
+```java
+@Data
+@AllArgsConstructor
+public class OrderFlatQueryDTO {
+    // Order의 데이터
+    private Long orderId;
+    private String name;
+    private LocalDateTime orderDate;
+    private Address address;
+    private OrderStatus orderStatus;
+    // OrderItem Entity의 데이터
+    private String itemName;
+    private int orderPrice;
+    private int count;
+}
+```
+
+리포지토리에서 한 번에 데이터를 조회하여 위에서 생성한 DTO에 입력한다.
+
+```java
+@Repository
+@RequiredArgsConstructor
+public class OrdersQueryRepository {
+
+    private final EntityManager entityManager;
+
+    public List<OrderFlatQueryDTO> findOrderQueryDTOsV7() {
+        return entityManager.createQuery(
+                        "SELECT new com.roy.jpa.utilization.repository.queryrepository.OrderFlatQueryDTO" +
+                                "(O.id, M.name, O.orderDate, D.address, O.status, I.name, OI.orderPrice, OI.count) " +
+                                "FROM Order O " +
+                                "       JOIN O.member M " +
+                                "       JOIN O.delivery D " +
+                                "       JOIN O.orderItems OI " +
+                                "       JOIN OI.item I ", OrderFlatQueryDTO.class)
+                .getResultList();
+    }
+}
+```
+
+OrdersQueryDTO와 OrderItemQueryDTO에 생성자를 추가한다.
+
+**OrdersQueryDTO & OrderItemQueryDTO**
+
+```java
+@Data
+@Builder
+@AllArgsConstructor
+@EqualsAndHashCode(of = "orderId")
+public class OrdersQueryDTO {
+    private Long orderId;
+    private String name;
+    private LocalDateTime orderDate;
+    private OrderStatus orderStatus;
+    private Address address;
+    private List<OrderItemQueryDTO> orderItems;
+
+    public OrdersQueryDTO(OrderFlatQueryDTO dto) {
+        this.orderId = dto.getOrderId();
+        this.name = dto.getName();
+        this.orderDate = dto.getOrderDate();
+        this.orderStatus = dto.getOrderStatus();
+        this.address = dto.getAddress();
+    }
+
+    public OrdersQueryDTO(OrdersQueryDTO queryDTO, List<OrderItemQueryDTO> itemQueryDTOs) {
+        this.orderId = queryDTO.getOrderId();
+        this.name = queryDTO.getName();
+        this.orderDate = queryDTO.getOrderDate();
+        this.orderStatus = queryDTO.getOrderStatus();
+        this.address = queryDTO.getAddress();
+        this.orderItems = itemQueryDTOs;
+    }
+    
+}
+```
+
+```java
+@Data
+@Builder
+@AllArgsConstructor
+public class OrderItemQueryDTO {
+    private Long orderId;
+    private String itemName;
+    private int orderPrice;
+    private int count;
+    public OrderItemQueryDTO (OrderFlatQueryDTO dto) {
+        this.orderId = dto.getOrderId();
+        this.itemName = dto.getItemName();
+        this.orderPrice = dto.getOrderPrice();
+        this.count = dto.getCount();
+    }
+}
+```
+
+컨트롤러에서 조회된 FlatDTO 데이터를 가공하여 우리가 원하는 데이터를 만든다.
+
+**OrderCollectionAPIController**
+
+```java
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(value = "/api/orders")
+public class OrderCollectionAPIController {
+
+    private final OrderRepository orderRepository;
+    private final OrdersQueryRepository ordersQueryRepository;
+
+    @GetMapping(value = "", headers = "X-API-VERSION=7")
+    public List<OrdersQueryDTO> getOrdersV7() {
+        List<OrderFlatQueryDTO> flats = ordersQueryRepository.findOrderQueryDTOsV7();
+        return flats.stream()
+                .collect(groupingBy(OrdersQueryDTO::new,
+                        mapping(OrderItemQueryDTO::new, toList())
+                )).entrySet().stream()
+                .map(e -> new OrdersQueryDTO(e.getKey(), e.getValue()))
+                .collect(toList());
+    }
+}
+```
+
+stream 부분을 보면 OrdersQueryDTO가 중복되는 데이터를 groupingBy하였다.
+groupingBy된 값을 key로 사용하였고 이외의 데이터는 리스트 형태로 value가 되어 Map에 담기게 되었다.
+결과물은 HashMap<OrderQueryDTO, List<OrderItemQueryDTO>>의 형태가 된다.
+만들어진 Map에서 Key와 Value를 뽑아 OrderQueryDTO를 생성하여 반환한다.
+
+---
 
 ### Summary
+
+사실상 목록을 조회하는 화면은 거의 모든 화면에서 페이징 처리가 되기 때문에 V1, V2, V3는 사용하지 못할 것이다.
+같은 이유로 V5, V7또한 사용하지 못할 것이다. 
+
+물론 선택 사항이지만 필자의 경우 default_batch_fetch_size를 통한 방법(V4)와 V6를 우선적으로 사용할 듯 싶다.
 
 ---
 

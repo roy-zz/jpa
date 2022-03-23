@@ -5,6 +5,8 @@ import com.roy.jpa.utilization.domain.Order;
 import com.roy.jpa.utilization.domain.OrderItem;
 import com.roy.jpa.utilization.domain.OrderStatus;
 import com.roy.jpa.utilization.repository.OrderRepository;
+import com.roy.jpa.utilization.repository.queryrepository.OrderFlatQueryDTO;
+import com.roy.jpa.utilization.repository.queryrepository.OrderItemQueryDTO;
 import com.roy.jpa.utilization.repository.queryrepository.OrdersQueryDTO;
 import com.roy.jpa.utilization.repository.queryrepository.OrdersQueryRepository;
 import lombok.AllArgsConstructor;
@@ -18,7 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,7 +48,7 @@ public class OrderCollectionAPIController {
         List<Order> orders = orderRepository.findAll();
         return orders.stream()
                 .map(OrderDTO::of)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @GetMapping(value = "", headers = "X-API-VERSION=3")
@@ -53,7 +56,7 @@ public class OrderCollectionAPIController {
         List<Order> orders = orderRepository.fetchAllByFetchJoin();
         return orders.stream()
                 .map(OrderDTO::of)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @GetMapping(value = "", headers = "X-API-VERSION=4")
@@ -64,7 +67,7 @@ public class OrderCollectionAPIController {
         List<Order> orders = orderRepository.findAllByFetchJoinWithPagination(offset, limit);
         return orders.stream()
                 .map(OrderDTO::of)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @GetMapping(value = "", headers = "X-API-VERSION=5")
@@ -77,6 +80,16 @@ public class OrderCollectionAPIController {
         return ordersQueryRepository.findOrderQueryDTOsV6();
     }
 
+    @GetMapping(value = "", headers = "X-API-VERSION=7")
+    public List<OrdersQueryDTO> getOrdersV7() {
+        List<OrderFlatQueryDTO> flats = ordersQueryRepository.findOrderQueryDTOsV7();
+        return flats.stream()
+            .collect(groupingBy(OrdersQueryDTO::new,
+                        mapping(OrderItemQueryDTO::new, toList())
+            )).entrySet().stream()
+                .map(e -> new OrdersQueryDTO(e.getKey(), e.getValue()))
+            .collect(toList());
+    }
     @Data
     @Builder
     @AllArgsConstructor
@@ -94,10 +107,9 @@ public class OrderCollectionAPIController {
                     .orderDate(order.getOrderDate())
                     .orderStatus(order.getStatus())
                     .address(order.getDelivery().getAddress())
-                    .orderItems(order.getOrderItems().stream().map(OrderItemDTO::of).collect(Collectors.toList()))
+                    .orderItems(order.getOrderItems().stream().map(OrderItemDTO::of).collect(toList()))
                     .build();
         }
-
     }
 
     @Data

@@ -42,3 +42,4 @@ bin/
 
 ### VS Code ###
 .vscode/
+.gradle/7.4/checksums/checksums.lock
